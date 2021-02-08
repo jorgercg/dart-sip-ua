@@ -1590,7 +1590,7 @@ class RTCSession extends EventManager {
     // In future versions, unified-plan will be used by default
     String sdpSemantics = 'unified-plan';
     if (pcConfig['sdpSemantics'] != null) {
-      sdpSemantics = pcConfig['sdpSemantics'];
+      sdpSemantics = 'plan-b'; // pcConfig['sdpSemantics'];
     }
 
     switch (sdpSemantics) {
