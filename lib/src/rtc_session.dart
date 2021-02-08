@@ -22,7 +22,7 @@ import 'rtc_session/refer_subscriber.dart';
 import 'sip_message.dart';
 import 'timers.dart';
 import 'transactions/transaction_base.dart';
-import 'ua.dart';
+import 'ua.dart' as SIPUA;
 import 'uri.dart';
 import 'utils.dart' as utils;
 
