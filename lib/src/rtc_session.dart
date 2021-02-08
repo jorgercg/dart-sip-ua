@@ -2405,6 +2405,9 @@ class RTCSession extends EventManager {
       }
 
       try {
+        logger.e(answer.sdp.length);
+        logger.e(answer.sdp);
+        logger.e(answer.type);
         await _connection.setRemoteDescription(answer);
         // Handle Session Timers.
         _handleSessionTimersInIncomingResponse(response);
