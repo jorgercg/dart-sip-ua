@@ -176,7 +176,6 @@ class Transport {
     }
 
     String message = data.toString();
-    //logger.debug('sending message:\n\n$message\n');
     return socket.send(message);
   }
 
@@ -311,7 +310,12 @@ class Transport {
 
     // Text message.
     else {
-      logger.debug('received text message:\n\n$data\n');
+      logger.debug('received text message:');
+      // This is to make possible to see unabridged SIP messages
+      final pattern = RegExp('.{1,800}');
+      pattern
+          .allMatches('received text message:\n\n$data\n')
+          .forEach((match) => print(match.group(0)));
     }
 
     ondata(this, data);

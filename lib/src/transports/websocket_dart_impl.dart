@@ -3,9 +3,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:sip_ua/src/sip_ua_helper.dart';
+import 'package:better_socket/better_socket.dart';
 
 import '../logger.dart';
+import '../sip_ua_helper.dart';
 
 typedef OnMessageCallback = void Function(dynamic msg);
 typedef OnCloseCallback = void Function(int code, String reason);
@@ -14,6 +15,7 @@ typedef OnOpenCallback = void Function();
 class WebSocketImpl {
   WebSocketImpl(this._url);
 
+  bool _isOpen = false;
   final String _url;
   WebSocket _socket;
   OnOpenCallback onOpen;
@@ -24,38 +26,78 @@ class WebSocketImpl {
       {Iterable<String> protocols, WebSocketSettings webSocketSettings}) async {
     logger.info('connect $_url, ${webSocketSettings.extraHeaders}, $protocols');
     try {
-      if (webSocketSettings.allowBadCertificate) {
-        /// Allow self-signed certificate, for test only.
-        _socket = await _connectForBadCertificate(_url, webSocketSettings);
-      } else {
-        _socket = await WebSocket.connect(_url,
-            protocols: protocols, headers: webSocketSettings.extraHeaders);
-      }
+      var header = webSocketSettings.extraHeaders.cast<String, String>();
+      BetterSocket.connentSocket(
+        _url,
+        httpHeaders: header,
+        trustAllHost: webSocketSettings.allowBadCertificate,
+      );
 
-      onOpen?.call();
-      _socket.listen((dynamic data) {
-        onMessage?.call(data);
-      }, onDone: () {
-        onClose?.call(_socket.closeCode, _socket.closeReason);
-      });
+      BetterSocket.addListener(
+        onOpen: (httpStatus, httpStatusMessage) {
+          print(
+              'onOpen---httpStatus:$httpStatus httpStatusMessage:$httpStatusMessage');
+          _isOpen = true;
+          onOpen?.call();
+        },
+        onMessage: (message) {
+          onMessage.call(message);
+        },
+        onClose: (code, reason, remote) {
+          _isOpen = false;
+          onClose.call(code as int, 'reason:$reason  remote:$remote');
+        },
+        onError: (message) {
+          _isOpen = false;
+          onClose.call(0, 'reason:ERROR  message:$message');
+        },
+      );
+
+      // if (webSocketSettings.allowBadCertificate) {
+      //   /// Allow self-signed certificate, for test only.
+      //   _socket = await _connectForBadCertificate(_url, webSocketSettings);
+      // } else {
+      //   _socket = await WebSocket.connect(_url,
+      //       protocols: protocols, headers: webSocketSettings.extraHeaders);
+      // }
+
+      // onOpen?.call();
+      // _socket.listen((dynamic data) {
+      //   onMessage?.call(data);
+      // }, onDone: () {
+      //   onClose?.call(_socket.closeCode, _socket.closeReason);
+      // });
     } catch (e) {
+      _isOpen = false;
       onClose?.call(500, e.toString());
     }
   }
 
   void send(dynamic data) {
-    if (_socket != null) {
-      _socket.add(data);
-      logger.debug('send: \n\n$data');
+    if (_isOpen) {
+      // _socket.add(data);
+      BetterSocket.sendMsg(data);
+      logger.debug('###START#########################################');
+      printWrapped('\n\n$data');
+      logger.debug('###END#########################################');
     }
   }
 
+  void printWrapped(String text) {
+    final RegExp pattern = RegExp('.{1,800}'); // 800 is the size of each chunk
+    pattern
+        .allMatches(text)
+        .forEach((RegExpMatch match) => print(match.group(0)));
+  }
+
   void close() {
-    _socket.close();
+    BetterSocket.close();
+    // _socket.close();
   }
 
   bool isConnecting() {
-    return _socket != null && _socket.readyState == WebSocket.connecting;
+    // return _socket != null && _socket.readyState == WebSocket.connecting;
+    return _isOpen;
   }
 
   /// For test only.

@@ -31,7 +31,7 @@ class ReferSubscriber extends EventManager {
     String replaces;
 
     if (options['replaces'] != null) {
-      replaces = options['replaces'].call_id;
+      replaces = options['replaces'].request.call_id;
       replaces += ';to-tag=${options['replaces'].to_tag}';
       replaces += ';from-tag=${options['replaces'].from_tag}';
       replaces = Utils.encodeURIComponent(replaces);

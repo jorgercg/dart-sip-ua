@@ -84,7 +84,7 @@ class MyLogPrinter extends LogPrinter {
 
   static final Map<Level, AnsiColor> levelColors = <Level, AnsiColor>{
     Level.verbose: AnsiColor.fg(AnsiColor.grey(0.5)),
-    Level.debug: AnsiColor.none(),
+    Level.debug: AnsiColor.fg(12),
     Level.info: AnsiColor.fg(12),
     Level.warning: AnsiColor.fg(208),
     Level.error: AnsiColor.fg(196),

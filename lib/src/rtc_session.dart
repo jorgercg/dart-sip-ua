@@ -214,6 +214,10 @@ class RTCSession extends EventManager {
 
   int get status => _status;
 
+  String get to_tag => _to_tag;
+
+  String get from_tag => _from_tag;
+
   bool isInProgress() {
     switch (_status) {
       case C.STATUS_NULL:

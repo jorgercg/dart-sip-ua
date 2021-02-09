@@ -391,9 +391,9 @@ class Call {
     _session.answer(options);
   }
 
-  void refer(String target) {
+  void refer(String target, [dynamic options]) {
     assert(_session != null, 'ERROR(refer): rtc session is invalid!');
-    ReferSubscriber refer = _session.refer(target);
+    ReferSubscriber refer = _session.refer(target, options);
     refer.on(EventReferTrying(), (EventReferTrying data) {});
     refer.on(EventReferProgress(), (EventReferProgress data) {});
     refer.on(EventReferAccepted(), (EventReferAccepted data) {
@@ -499,6 +499,10 @@ class Call {
       }
     }
     return peerHasMediaLine;
+  }
+
+  RTCSession get callSession {
+    return _session;
   }
 }
 
